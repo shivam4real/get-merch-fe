@@ -1,16 +1,16 @@
 import { useNavigate } from "react-router-dom"
 import { useEffect } from "react"
-import { Container as MainContainer } from "@mui/material"
+import { Container } from "@mui/material"
 
 import Header from "../Header/Header"
-import Container from "../Container/container"
+import MainContainer from "../Container/container"
 import Footer from "../Footer/Footer"
 
 const LandingPage = () => {
     let navigate = useNavigate()
 
     let token = localStorage.getItem("token")
-
+    console.log(token)
     useEffect(() => {
         if (!token) {
             navigate("/login")
@@ -19,11 +19,11 @@ const LandingPage = () => {
     }, [])
 
     return (
-        <MainContainer component="main">
+        <Container component="main" maxWidth="xl">
             <Header />
-            <Container />
+            <MainContainer />
             <Footer />
-        </MainContainer>
+        </Container>
     )
 }
 

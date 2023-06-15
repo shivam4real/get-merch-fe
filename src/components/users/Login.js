@@ -20,10 +20,9 @@ const Login = () => {
         console.log(username + "   " + password)
         try {
             let res = await axios.post("/user/login", {
-                username: username,
+                email: username,
                 password: password,
             })
-            console.log(res.data.data)
             localStorage.setItem("token", res.data.data)
             navigate("/")
         } catch (err) {
