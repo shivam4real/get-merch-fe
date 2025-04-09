@@ -1,0 +1,22 @@
+.shirt-list, .user-list {
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+}
+
+.section-title {
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.shirt-item, .user-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.add-shirt-btn {
+    margin-bottom: 15px;
+}

@@ -9,68 +9,84 @@ import {
     Avatar,
     MenuItem,
     Container,
-} from "@mui/material"
-import React from "react"
-import { useNavigate } from "react-router-dom"
-import ShoppingCartIcon from "@mui/icons-material/ShoppingCart"
+    Button,
+    Badge,
+} from "@mui/material";
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import headerStyles from "./headerStyle";
+import { useSelector } from "react-redux";
 
 const Header = () => {
-    const [anchorElUser, setAnchorElUser] = React.useState(null)
-    const settings = ["Profile", "Logout"]
-    const navigate = useNavigate()
+    const [anchorElUser, setAnchorElUser] = React.useState(null);
+    const navigate = useNavigate();
+    const cartItems = useSelector((state) => state.cart);
+    const isAdmin = useSelector((state) => state.user.isAdmin);
 
     const handleOpenUserMenu = (event) => {
-        setAnchorElUser(event.currentTarget)
-    }
+        setAnchorElUser(event.currentTarget);
+    };
     const handleCloseUserMenu = () => {
-        setAnchorElUser(null)
-    }
+        setAnchorElUser(null);
+    };
 
     const handleLogout = () => {
-        localStorage.clear()
-        navigate("/login")
-    }
+        localStorage.clear();
+        navigate("/login");
+    };
     const goToCart = () => {
-        navigate("/cart")
-    }
-    const handleSelectChange = (value) => {
-        if (value === "Logout") {
-            handleLogout()
+        navigate("/cart");
+    };
+    const goToProfile = () => {
+        navigate("/profile");
+    };
+    const handleScrollToFooter = () => {
+        const footerElement = document.getElementById("footer");
+        if (footerElement) {
+            footerElement.scrollIntoView({ behavior: "smooth" });
         }
-    }
+    };
 
     return (
-        <AppBar position="static">
+        <AppBar position="static" sx={headerStyles.appBar}>
             <Container maxWidth="xl">
-                <Box
-                    sx={{
-                        bgcolor: "#f0f0f0",
-                        padding: "1rem",
-                        display: "flex",
-                    }}
-                >
+                <Box sx={headerStyles.container}>
                     <CssBaseline />
-                    <Typography variant="h5" noWrap component="a">
+                    <Typography
+                        variant="h5"
+                        noWrap
+                        component="a"
+                        sx={headerStyles.brandName}
+                        onClick={() => navigate("/")}
+                    >
                         Get Merch
                     </Typography>
-                    <div style={{ marginLeft: "1000px", display: "flex" }}>
-                        <IconButton onClick={goToCart}>
-                            <ShoppingCartIcon color="secondary" />
+                    <Box sx={headerStyles.navButtons}>
+                        <Button color="inherit" onClick={() => navigate("/")}>Home</Button>
+                        <Button color="inherit" onClick={handleScrollToFooter}>Contact Us</Button>
+                        {isAdmin && (
+                            <Button color="inherit" onClick={() => navigate("/admin")}>Admin</Button>
+                        )}
+                        <IconButton onClick={goToCart} sx={headerStyles.cartButton}>
+                            <Badge badgeContent={cartItems.length} color="secondary">
+                                <ShoppingCartIcon color="secondary" />
+                            </Badge>
                         </IconButton>
-                        <Box sx={{ flexGrow: 0 }}>
+                        <Box sx={headerStyles.profileMenu}>
                             <Tooltip title="Open settings">
                                 <IconButton
                                     onClick={handleOpenUserMenu}
-                                    sx={{ p: 0 }}
+                                    sx={headerStyles.avatar}
                                 >
                                     <Avatar
-                                        alt="Remy Sharp"
+                                        alt="Profile Picture"
                                         src="/static/images/avatar/2.jpg"
                                     />
                                 </IconButton>
                             </Tooltip>
                             <Menu
-                                sx={{ mt: "45px" }}
+                                sx={headerStyles.menu}
                                 id="menu-appbar"
                                 anchorEl={anchorElUser}
                                 anchorOrigin={{
@@ -85,26 +101,19 @@ const Header = () => {
                                 open={Boolean(anchorElUser)}
                                 onClose={handleCloseUserMenu}
                             >
-                                {settings.map((setting) => (
-                                    <MenuItem
-                                        key={setting}
-                                        value={setting}
-                                        onClick={() =>
-                                            handleSelectChange(setting)
-                                        }
-                                    >
-                                        <Typography textAlign="center">
-                                            {setting}
-                                        </Typography>
-                                    </MenuItem>
-                                ))}
+                                <MenuItem onClick={goToProfile}>
+                                    <Typography textAlign="center">View Profile</Typography>
+                                </MenuItem>
+                                <MenuItem onClick={handleLogout}>
+                                    <Typography textAlign="center">Logout</Typography>
+                                </MenuItem>
                             </Menu>
                         </Box>
-                    </div>
+                    </Box>
                 </Box>
             </Container>
         </AppBar>
-    )
-}
+    );
+};
 
-export default Header
+export default Header;

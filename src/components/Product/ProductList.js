@@ -1,30 +1,50 @@
-import React, { useEffect, useState } from "react"
-import axios from "axios"
+import React from "react"
 import Product from "./Product"
+import LoadingIcon from "../Loading/Loading"
+import axios from "axios"
+import productListStyles from "./ProductListStyle";
 
 const ProductList = () => {
-    const [items, setItems] = useState([])
 
-    useEffect(() => {
-        itemList()
-    }, [])
-
-    const itemList = async () => {
-        try {
-            let itemListRes = await axios.post("/product", {})
-            setItems(itemListRes.data.data)
-        } catch (err) {
-            console.log(err)
-            alert(err)
+    const [data, setData] = React.useState([])
+    const [isLoading, setIsLoading] = React.useState(true)
+    const [error, setError] = React.useState(null)  
+   
+    
+    React.useEffect(() => {
+        
+        const fetchData = async () => {
+           
+            try {
+                const response = await axios.post("/product")
+                setData(response.data.data)
+            } catch (error) {
+                setError(error)
+            } finally {
+                setIsLoading(false)
+            }
         }
-    }
+
+        fetchData()
+        // console.log(data);
+        
+    }, [])
+    
 
     return (
-        <div>
-            {items.map((item, index) => (
-                <Product {...item} />
-            ))}
-        </div>
+        <>
+            {isLoading ? (
+                <LoadingIcon />
+            ) : error ? (
+                <div>Error: {error.message}</div>
+            ) : (
+                <div style={productListStyles.container}>
+                    {data?.map((item, index) => (
+                        <Product key={index} {...item} />
+                    ))}
+                </div>
+            )}
+        </>
     )
 }
 

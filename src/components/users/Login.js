@@ -17,12 +17,17 @@ const Login = () => {
     const [password, setPassword] = useState("")
     const navigate = useNavigate()
     const handleSubmit = async () => {
-        console.log(username + "   " + password)
+       
         try {
             let res = await axios.post("/user/login", {
                 email: username,
                 password: password,
             })
+            
+            if (res.status === 400) {
+                alert(res.data.message)
+                
+            }
             localStorage.setItem("token", res.data.data)
             navigate("/")
         } catch (err) {
