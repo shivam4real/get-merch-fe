@@ -1,2 +1,2 @@
-user = admin    
-pass = 123
+user = admin@admin.com
+pass = 123456

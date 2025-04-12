@@ -1,5 +1,10 @@
-import axios from "axios"
-import { useState } from "react"
+import { useState } from "react";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+import IconButton from "@mui/material/IconButton";
+import InputAdornment from "@mui/material/InputAdornment";
+import axios from "axios";
+import { useForm } from "react-hook-form";
+import { Link } from "react-router-dom";
 import {
     Box,
     TextField,
@@ -7,88 +12,113 @@ import {
     Container,
     Typography,
     Avatar,
-} from "@mui/material"
+} from "@mui/material";
 
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined"
-import { useNavigate } from "react-router-dom"
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import { useNavigate } from "react-router-dom";
+import loginStyles from "./loginStyle";
 
 const Login = () => {
-    const [username, setUsername] = useState("")
-    const [password, setPassword] = useState("")
-    const navigate = useNavigate()
-    const handleSubmit = async () => {
-       
+    const [showPassword, setShowPassword] = useState(false);
+
+    const togglePasswordVisibility = () => {
+        setShowPassword((prev) => !prev);
+    };
+
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+    } = useForm();
+
+    const navigate = useNavigate();
+
+    const onSubmit = async (data) => {
         try {
             let res = await axios.post("/user/login", {
-                email: username,
-                password: password,
-            })
-            
+                email: data.email,
+                password: data.password,
+            });
+
             if (res.status === 400) {
-                alert(res.data.message)
-                
+                alert(res.data.message);
             }
-            localStorage.setItem("token", res.data.data)
-            navigate("/")
+            localStorage.setItem("token", res.data.data);
+            navigate("/");
         } catch (err) {
-            console.log("errr" + err)
+            console.log("Error: " + err);
         }
-    }
-    const handleUsernameChange = (e) => {
-        setUsername(e.target.value)
-    }
-    const handlePasswordChange = (e) => {
-        setPassword(e.target.value)
-    }
+    };
 
     return (
-        <Container component="main" maxWidth="sm">
-            <Box
-                sx={{
-                    width: "400px",
-                    height: "500px",
-                    backgroundColor: "rgba(245, 212, 39, 0.44)",
-                }}
-            >
-                <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
+        <Container component="main" maxWidth="xs">
+            <Box sx={loginStyles.container}>
+                <Avatar sx={loginStyles.avatar}>
                     <LockOutlinedIcon />
                 </Avatar>
-                <Typography component="h1" variant="h5">
+                <Typography component="h1" variant="h5" sx={loginStyles.title}>
                     Log in
                 </Typography>
-                <Box>
-                    <Typography variant="overline" display="block" gutterBottom>
-                        Username
-                    </Typography>
+                <Box component="form" onSubmit={handleSubmit(onSubmit)}>
                     <TextField
-                        required
-                        id="email"
+                        {...register("email", {
+                            required: "Email is required",
+                            pattern: {
+                                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                                message: "Invalid email address",
+                            },
+                        })}
+                        error={!!errors.email}
+                        helperText={errors.email ? errors.email.message : ""}
+                        margin="normal"
                         fullWidth
-                        onChange={handleUsernameChange}
+                        label="Email Address"
+                        autoComplete="email"
+                        autoFocus
                     />
-                    <Typography variant="overline" display="block" gutterBottom>
-                        Password
-                    </Typography>
                     <TextField
-                        required
-                        id="password"
-                        type="password"
+                        {...register("password", {
+                            required: "Password is required",
+                            minLength: {
+                                value: 6,
+                                message: "Password must be at least 6 characters",
+                            },
+                        })}
+                        error={!!errors.password}
+                        helperText={errors.password ? errors.password.message : ""}
+                        margin="normal"
                         fullWidth
-                        onChange={handlePasswordChange}
+                        label="Password"
+                        type={showPassword ? "text" : "password"}
+                        autoComplete="current-password"
+                        InputProps={{
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        onClick={togglePasswordVisibility}
+                                        edge="end"
+                                    >
+                                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                                    </IconButton>
+                                </InputAdornment>
+                            ),
+                        }}
                     />
                     <Button
                         type="submit"
                         fullWidth
                         variant="contained"
-                        sx={{ mt: 3, mb: 2 }}
-                        onClick={handleSubmit}
+                        sx={loginStyles.submitButton}
                     >
                         Log In
                     </Button>
+                    <Typography variant="body2" sx={loginStyles.linkText}>
+                        Don't have an account? <Link to="/register">Register</Link>
+                    </Typography>
                 </Box>
             </Box>
         </Container>
-    )
-}
+    );
+};
 
-export default Login
+export default Login;

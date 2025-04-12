@@ -1,114 +1,162 @@
-import {
-    Box,
-    TextField,
-    Button,
-    Container,
-    Typography,
-    Avatar,
-} from "@mui/material"
-import { useState, useEffect } from "react"
-import axios from "axios"
-import { useNavigate } from "react-router-dom"
-import AccountCircleIcon from "@mui/icons-material/AccountCircle"
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { Box, TextField, Button, Container, Typography } from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+import IconButton from "@mui/material/IconButton";
+import InputAdornment from "@mui/material/InputAdornment";
+import registerStyles from "./registerStyle";
 
 const Register = () => {
-    let navigate = useNavigate()
-    const [username, setUsername] = useState("")
-    const [password, setPassword] = useState("")
-    const [cnfPassword, setCnfPassword] = useState("")
-    const [isNavigate, setIsNavigate] = useState(false)
+    const {
+        register,
+        handleSubmit,
+        watch,
+        formState: { errors, isValid },
+    } = useForm({ mode: "onChange" });
 
-    useEffect(() => {
-        if (isNavigate) {
-            navigate("/")
-        }
-    }, [isNavigate, navigate])
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-    const handleSummit = async () => {
-        if (cnfPassword === password) {
-            try {
-                let res = await axios.post("/user/register", {
-                    username: username,
-                    password: password,
-                })
-                localStorage.setItem("token", res.data.data)
-                setIsNavigate(true)
-            } catch (err) {
-                console.log("errr" + err)
-                alert("Some Error happend")
-            }
-        } else {
-            alert("Password not same")
+    const togglePasswordVisibility = () => {
+        setShowPassword((prev) => !prev);
+    };
+
+    const toggleConfirmPasswordVisibility = () => {
+        setShowConfirmPassword((prev) => !prev);
+    };
+
+    const onSubmit = async (data) => {
+        setIsSubmitting(true);
+        try {
+            // API call to register the user
+            console.log("User data:", data);
+        } catch (error) {
+            console.error("Error registering user:", error);
+        } finally {
+            setIsSubmitting(false);
         }
-    }
-    const handleUsernameChange = (e) => {
-        setUsername(e.target.value)
-    }
-    const handlePasswordChange = (e) => {
-        setPassword(e.target.value)
-    }
-    const handleCnfPasswordChange = (e) => {
-        setCnfPassword(e.target.value)
-    }
+    };
+
+    const password = watch("password", "");
+
     return (
-        <Container component="main" maxWidth="sm">
-            <Box
-                sx={{
-                    width: "400px",
-                    height: "500px",
-                    backgroundColor: "yellow",
-                }}
-            >
-                <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
-                    <AccountCircleIcon />
-                </Avatar>
-                <Typography component="h1" variant="h5">
-                    Sign Up
+        <Container component="main" maxWidth="xs">
+            <Box sx={registerStyles.container}>
+                <Typography component="h1" variant="h5" sx={registerStyles.title}>
+                    Register
                 </Typography>
-                <Box component="form" sx={{ mt: 1 }}>
-                    <Typography variant="overline" display="block" gutterBottom>
-                        Username
-                    </Typography>
+                <Box component="form" onSubmit={handleSubmit(onSubmit)}>
                     <TextField
-                        required
-                        id="email"
+                        {...register("firstName", { required: "First name is required" })}
+                        error={!!errors.firstName}
+                        helperText={errors.firstName ? errors.firstName.message : ""}
+                        margin="normal"
                         fullWidth
-                        onChange={handleUsernameChange}
+                        label="First Name"
+                        autoFocus
                     />
-                    <Typography variant="overline" display="block" gutterBottom>
-                        Password
-                    </Typography>
                     <TextField
-                        required
-                        id="password"
-                        type="password"
+                        {...register("lastName", { required: "Last name is required" })}
+                        error={!!errors.lastName}
+                        helperText={errors.lastName ? errors.lastName.message : ""}
+                        margin="normal"
                         fullWidth
-                        onChange={handlePasswordChange}
+                        label="Last Name"
                     />
-                    <Typography variant="overline" display="block" gutterBottom>
-                        Confirm Password
-                    </Typography>
                     <TextField
-                        required
-                        id="cnf-password"
-                        type="password"
+                        {...register("email", {
+                            required: "Email is required",
+                            pattern: {
+                                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                                message: "Invalid email address",
+                            },
+                        })}
+                        error={!!errors.email}
+                        helperText={errors.email ? errors.email.message : ""}
+                        margin="normal"
                         fullWidth
-                        onChange={handleCnfPasswordChange}
+                        label="Email Address"
+                        autoComplete="email"
                     />
-
+                    <TextField
+                        {...register("phone", {
+                            required: "Phone number is required",
+                            pattern: {
+                                value: /^[0-9]{10}$/,
+                                message: "Invalid phone number",
+                            },
+                        })}
+                        error={!!errors.phone}
+                        helperText={errors.phone ? errors.phone.message : ""}
+                        margin="normal"
+                        fullWidth
+                        label="Phone Number"
+                    />
+                    <TextField
+                        {...register("password", {
+                            required: "Password is required",
+                            minLength: {
+                                value: 6,
+                                message: "Password must be at least 6 characters",
+                            },
+                        })}
+                        error={!!errors.password}
+                        helperText={errors.password ? errors.password.message : ""}
+                        margin="normal"
+                        fullWidth
+                        label="Password"
+                        type={showPassword ? "text" : "password"}
+                        InputProps={{
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        onClick={togglePasswordVisibility}
+                                        edge="end"
+                                    >
+                                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                                    </IconButton>
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
+                    <TextField
+                        {...register("confirmPassword", {
+                            required: "Confirm password is required",
+                            validate: (value) => value === password || "Passwords do not match",
+                        })}
+                        error={!!errors.confirmPassword}
+                        helperText={errors.confirmPassword ? errors.confirmPassword.message : ""}
+                        margin="normal"
+                        fullWidth
+                        label="Confirm Password"
+                        type={showConfirmPassword ? "text" : "password"}
+                        InputProps={{
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        onClick={toggleConfirmPasswordVisibility}
+                                        edge="end"
+                                    >
+                                        {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                                    </IconButton>
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
                     <Button
                         type="submit"
                         fullWidth
                         variant="contained"
-                        sx={{ mt: 3, mb: 2 }}
-                        onClick={handleSummit}
+                        sx={registerStyles.submitButton}
+                        disabled={!isValid || isSubmitting}
                     >
-                        Register
+                        {isSubmitting ? "Registering..." : "Register"}
                     </Button>
                 </Box>
             </Box>
         </Container>
-    )
-}
+    );
+};
 
-export default Register
+export default Register;

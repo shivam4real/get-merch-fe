@@ -1,44 +1,30 @@
 const cartStyles = {
     container: {
         padding: "20px",
-        maxWidth: "800px",
-        margin: "0 auto",
     },
     title: {
         marginBottom: "20px",
-        textAlign: "center",
     },
     emptyMessage: {
         textAlign: "center",
-        color: "#757575",
+        marginTop: "50px",
     },
     itemsContainer: {
         display: "flex",
         flexDirection: "column",
         gap: "15px",
     },
-    item: {
+    cartItem: {
         display: "flex",
-        justifyContent: "space-between",
         alignItems: "center",
+        justifyContent: "space-between",
         padding: "10px",
-        border: "1px solid #ddd",
+        border: "1px solid #ccc",
         borderRadius: "5px",
     },
-    itemName: {
-        fontWeight: "bold",
-    },
-    itemPrice: {
-        color: "#ff5722",
-    },
-    quantityContainer: {
-        display: "flex",
-        alignItems: "center",
-        gap: "10px",
-    },
-    quantity: {
-        minWidth: "30px",
-        textAlign: "center",
+    cartItemText: {
+        flex: "1",
+        margin: "0 10px",
     },
 };
 
